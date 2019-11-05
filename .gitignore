@@ -1,0 +1,10 @@
+.vs/
+.nyc_output/
+coverage/
+node_modules/
+package.zip
+package-previous.zip
+
+test.sh
+test.salus.sh
+test.heatmiser.sh
