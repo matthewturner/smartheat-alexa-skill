@@ -40,7 +40,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "smartheat-aws": "github:matthewturner/smartheat-aws#v1.0.0",
-    "smartheat-clients": "github:matthewturner/smartheat-clients#v1.0.0",
-    "smartheat-core": "github:matthewturner/smartheat-core#v1.0.2"
+    "smartheat-clients": "github:matthewturner/smartheat-clients#v1.1.0",
+    "smartheat-core": "github:matthewturner/smartheat-core#v1.0.3"
   }
 }
