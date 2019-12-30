@@ -5,7 +5,7 @@ const DefaultHoldStrategy = require('smartheat-core/core/HoldStrategy');
 const Logger = require('smartheat-core/core/Logger');
 const AwsThermostatRepository = require('smartheat-aws/aws/ThermostatRepository');
 const DefaultThermostatRepository = require('smartheat-core/core/ThermostatRepository');
-const Factory = require('smartheat-clients/clients/Factory');
+const Factory = require('smartheat-core/core/Factory');
 const SetTemperatureStrategy = require('smartheat-core/core/SetTemperatureStrategy');
 
 const logger = new Logger(Logger.DEBUG);

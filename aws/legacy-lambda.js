@@ -9,7 +9,7 @@ const Logger = require('smartheat-core/core/Logger');
 const DynamodbThermostatRepository = require('smartheat-aws/aws/ThermostatRepository');
 const helpers = require('smartheat-aws/aws/helpers');
 const AwsHoldStrategy = require('smartheat-aws/aws/HoldStrategy');
-const Factory = require('smartheat-clients/clients/Factory');
+const Factory = require('smartheat-core/core/Factory');
 
 // Allow this module to be reloaded by hotswap when changed
 module.change_code = 0;
@@ -94,7 +94,7 @@ const reportOn = async (request, response, serviceType, action) => {
         const output = await action(service);
         say(response, output, logger);
     } catch (e) {
-        report(response, e, logger);
+        report(response, e.message, logger);
     }
     return false;
 };
