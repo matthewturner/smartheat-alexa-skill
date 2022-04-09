@@ -36,7 +36,7 @@
     "extend": ">=3.0.2",
     "fs": "^0.0.2",
     "lodash": "^4.17.15",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "smartheat-aws": "github:matthewturner/smartheat-aws#v1.1.0",
