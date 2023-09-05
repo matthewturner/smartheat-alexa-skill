@@ -13,7 +13,6 @@
     "applicationId": "amzn1.echo-sdk-ams.app.999999-d0ed-9999-ad00-999999d00ebe"
   },
   "devDependencies": {
-    "aws-sdk": "^2.814.0",
     "aws-sdk": "^2.553.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
@@ -35,8 +34,8 @@
     "durationjs": "github:matthewturner/durationjs#v1.2.0",
     "extend": ">=3.0.2",
     "fs": "^0.0.2",
-    "lodash": "^4.17.15",
     "moment": "^2.29.4",
+    "lodash": "^4.17.21",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "smartheat-aws": "github:matthewturner/smartheat-aws#v1.1.0",
