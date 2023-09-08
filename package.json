@@ -29,7 +29,7 @@
     "@hapi/hoek": "^11.0.2",
     "@matthewturner/durationjs": "^1.2.0",
     "@matthewturner/smartheat-aws": "^1.1.0",
-    "@matthewturner/smartheat-clients": "^1.3.0",
+    "@matthewturner/smartheat-clients": "^1.4.2",
     "@matthewturner/smartheat-core": "^1.1.0",
     "JSON": "^1.0.0",
     "alexa-app": "^4.2.3",
