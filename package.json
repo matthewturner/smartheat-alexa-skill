@@ -16,7 +16,7 @@
     "aws-sdk": "^2.553.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^5.16.0",
+    "eslint": "^8.48.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "promise-fs": "^2.1.1",
@@ -38,8 +38,6 @@
     "extend": ">=3.0.2",
     "fs": "^0.0.2",
     "moment": "^2.29.4",
-    "lodash": "^4.17.21",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "lodash": "^4.17.21"
   }
 }
