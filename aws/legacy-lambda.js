@@ -1,15 +1,15 @@
 const alexa = require('alexa-app');
-const DefaultThermostatRepository = require('smartheat-core/core/ThermostatRepository');
-const DefaultHoldStrategy = require('smartheat-core/core/HoldStrategy');
-const SetTemperatureStrategy = require('smartheat-core/core/SetTemperatureStrategy');
-const ThermostatService = require('smartheat-core/core/ThermostatService');
-const WaterService = require('smartheat-core/core/WaterService');
-const DefaultsService = require('smartheat-core/core/DefaultsService');
-const Logger = require('smartheat-core/core/Logger');
-const DynamodbThermostatRepository = require('smartheat-aws/aws/ThermostatRepository');
-const helpers = require('smartheat-aws/aws/helpers');
-const AwsHoldStrategy = require('smartheat-aws/aws/HoldStrategy');
-const Factory = require('smartheat-core/core/Factory');
+const DefaultThermostatRepository = require('@matthewturner/smartheat-core/core/ThermostatRepository');
+const DefaultHoldStrategy = require('@matthewturner/smartheat-core/core/HoldStrategy');
+const SetTemperatureStrategy = require('@matthewturner/smartheat-core/core/SetTemperatureStrategy');
+const ThermostatService = require('@matthewturner/smartheat-core/core/ThermostatService');
+const WaterService = require('@matthewturner/smartheat-core/core/WaterService');
+const DefaultsService = require('@matthewturner/smartheat-core/core/DefaultsService');
+const Logger = require('@matthewturner/smartheat-core/core/Logger');
+const DynamodbThermostatRepository = require('@matthewturner/smartheat-aws/aws/ThermostatRepository');
+const helpers = require('@matthewturner/smartheat-aws/aws/helpers');
+const AwsHoldStrategy = require('@matthewturner/smartheat-aws/aws/HoldStrategy');
+const Factory = require('@matthewturner/smartheat-core/core/Factory');
 
 // Allow this module to be reloaded by hotswap when changed
 module.change_code = 0;
