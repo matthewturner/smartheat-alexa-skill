@@ -30,7 +30,6 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-
             expect(response.response.outputSpeech.ssml).to.equal('<speak>The current temperature is 19 degrees. The target is 20 degrees. The heating is on.</speak>');
         });
 
