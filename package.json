@@ -33,11 +33,12 @@
     "@matthewturner/smartheat-core": "^1.1.0",
     "JSON": "^1.0.0",
     "alexa-app": "^4.2.3",
+    "ask-sdk": "^2.14.0",
     "axios": "^0.21.2",
     "cheerio": "^0.22.0",
     "extend": ">=3.0.2",
     "fs": "^0.0.2",
-    "moment": "^2.29.4",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4"
   }
 }

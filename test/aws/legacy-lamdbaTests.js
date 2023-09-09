@@ -25,11 +25,11 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
+
             expect(response.response.outputSpeech.ssml).to.equal('<speak>The current temperature is 19 degrees. The target is 20 degrees. The heating is on.</speak>');
         });
 
@@ -37,11 +37,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.card.text).to.equal('The current temperature is 19 degrees.\nThe target is 20 degrees.\nThe heating is on.');
         });
 
@@ -50,11 +49,10 @@ describe('Legacy Lambda', async () => {
             process.env.THERMOSTAT_TYPE = 'unknown';
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>Unknown thermostat type unknown</speak>');
         });
     });
@@ -64,11 +62,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/DefaultsIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>The default on temperature is 20 degrees. The default off temperature is 14 degrees. The default duration is 1 hour.</speak>');
         });
 
@@ -76,11 +73,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/DefaultsIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.card.text).to.equal('The default on temperature is 20 degrees.\nThe default off temperature is 14 degrees.\nThe default duration is 1 hour.');
         });
 
@@ -89,11 +85,10 @@ describe('Legacy Lambda', async () => {
             process.env.THERMOSTAT_TYPE = 'unknown';
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/DefaultsIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>Unknown thermostat type unknown</speak>');
         });
     });
@@ -104,14 +99,13 @@ describe('Legacy Lambda', async () => {
             process.env.MOCK_TARGET_TEMPERATURE = 18;
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnUpIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
 
             process.env.MOCK_TARGET_TEMPERATURE = 20;
-            expect(response.response.outputSpeech.ssml).to.equal('<speak>The target temperature is now 19 degrees.</speak>');
+            expect(response.outputSpeech.ssml).to.equal('<speak>The target temperature is now 19 degrees.</speak>');
         });
 
         it('shows the current temperature', async () => {
@@ -119,13 +113,12 @@ describe('Legacy Lambda', async () => {
             process.env.MOCK_TARGET_TEMPERATURE = 18;
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnUpIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             process.env.MOCK_TARGET_TEMPERATURE = 20;
-            expect(response.response.card.text).to.equal('The target temperature is now 19 degrees.');
+            expect(response.card.text).to.equal('The target temperature is now 19 degrees.');
         });
 
         it('says the error', async () => {
@@ -133,11 +126,10 @@ describe('Legacy Lambda', async () => {
             process.env.THERMOSTAT_TYPE = 'unknown';
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnUpIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>Unknown thermostat type unknown</speak>');
         });
     });
@@ -148,11 +140,10 @@ describe('Legacy Lambda', async () => {
             process.env.MOCK_TARGET_TEMPERATURE = 18;
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnDownIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
 
             process.env.MOCK_TARGET_TEMPERATURE = 20;
             expect(response.response.outputSpeech.ssml).to.equal('<speak>The target temperature is now 17 degrees.</speak>');
@@ -163,11 +154,10 @@ describe('Legacy Lambda', async () => {
             process.env.MOCK_TARGET_TEMPERATURE = 18;
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnDownIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             process.env.MOCK_TARGET_TEMPERATURE = 20;
             expect(response.response.card.text).to.equal('The target temperature is now 17 degrees.');
         });
@@ -177,11 +167,10 @@ describe('Legacy Lambda', async () => {
             process.env.THERMOSTAT_TYPE = 'unknown';
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnDownIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>Unknown thermostat type unknown</speak>');
         });
     });
@@ -191,11 +180,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
 
             expect(response.response.outputSpeech.ssml).to.equal('<speak>The target temperature is now 20 degrees.</speak>');
         });
@@ -204,11 +192,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.card.text).to.equal('The target temperature is now 20 degrees.');
         });
 
@@ -217,11 +204,10 @@ describe('Legacy Lambda', async () => {
             process.env.THERMOSTAT_TYPE = 'unknown';
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/TurnIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>Unknown thermostat type unknown</speak>');
         });
     });
@@ -231,11 +217,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/SetTempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
 
             expect(response.response.outputSpeech.ssml).to.equal('<speak>The target temperature is now 21 degrees.</speak>');
         });
@@ -244,11 +229,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/SetTempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.card.text).to.equal('The target temperature is now 21 degrees.');
         });
 
@@ -257,11 +241,10 @@ describe('Legacy Lambda', async () => {
             process.env.THERMOSTAT_TYPE = 'unknown';
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/SetTempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>Unknown thermostat type unknown</speak>');
         });
     });
@@ -271,11 +254,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/SetDefaultTempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
 
             expect(response.response.outputSpeech.ssml).to.equal('<speak>The default on temperature has been set to 21 degrees.</speak>');
         });
@@ -284,11 +266,10 @@ describe('Legacy Lambda', async () => {
             const target = createTarget();
 
             const request = JSON.parse(await fs.readFile('./test/fixtures/SetDefaultTempIntent.json'));
-            const context = {};
 
             const handler = util.promisify(target.object().handler);
 
-            const response = await handler(request, context);
+            const response = await handler(request);
             expect(response.response.card.text).to.equal('The default on temperature has been set to 21 degrees.');
         });
 
