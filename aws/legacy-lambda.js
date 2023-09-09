@@ -81,7 +81,7 @@ const say = (responseBuilder, output, logger) => {
 const report = (responseBuilder, message, logger) => {
     responseBuilder.speak(message);
     logger.error(message);
-    responseBuilder.getResponse();
+    return responseBuilder.getResponse();
 };
 
 const reportOn = async (handlerInput, serviceType, action) => {
