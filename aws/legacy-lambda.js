@@ -74,7 +74,7 @@ const say = (responseBuilder, output, logger) => {
     }
 
     return responseBuilder
-        .withSimpleCard(card.title, text)
+        .withStandardCard(card.title, text, card.image.smallImageUrl, card.image.largeImageUrl)
         .getResponse();
 };
 

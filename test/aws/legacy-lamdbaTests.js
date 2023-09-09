@@ -43,7 +43,7 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-            expect(response.response.card.content).to.equal('The current temperature is 19 degrees.\nThe target is 20 degrees.\nThe heating is on.');
+            expect(response.response.card.text).to.equal('The current temperature is 19 degrees.\nThe target is 20 degrees.\nThe heating is on.');
         });
 
         it('says the error', async () => {
@@ -82,7 +82,7 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-            expect(response.response.card.content).to.equal('The default on temperature is 20 degrees.\nThe default off temperature is 14 degrees.\nThe default duration is 1 hour.');
+            expect(response.response.card.text).to.equal('The default on temperature is 20 degrees.\nThe default off temperature is 14 degrees.\nThe default duration is 1 hour.');
         });
 
         it('says the error', async () => {
@@ -126,7 +126,7 @@ describe('Legacy Lambda', async () => {
 
             const response = await handler(request, context);
             process.env.MOCK_TARGET_TEMPERATURE = 20;
-            expect(response.response.card.content).to.equal('The target temperature is now 19 degrees.');
+            expect(response.response.card.text).to.equal('The target temperature is now 19 degrees.');
         });
 
         it('says the error', async () => {
@@ -170,7 +170,7 @@ describe('Legacy Lambda', async () => {
 
             const response = await handler(request, context);
             process.env.MOCK_TARGET_TEMPERATURE = 20;
-            expect(response.response.card.content).to.equal('The target temperature is now 17 degrees.');
+            expect(response.response.card.text).to.equal('The target temperature is now 17 degrees.');
         });
 
         it('says the error', async () => {
@@ -210,7 +210,7 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-            expect(response.response.card.content).to.equal('The target temperature is now 20 degrees.');
+            expect(response.response.card.text).to.equal('The target temperature is now 20 degrees.');
         });
 
         it('says the error', async () => {
@@ -250,7 +250,7 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-            expect(response.response.card.content).to.equal('The target temperature is now 21 degrees.');
+            expect(response.response.card.text).to.equal('The target temperature is now 21 degrees.');
         });
 
         it('says the error', async () => {
@@ -290,7 +290,7 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-            expect(response.response.card.content).to.equal('The default on temperature has been set to 21 degrees.');
+            expect(response.response.card.text).to.equal('The default on temperature has been set to 21 degrees.');
         });
 
         it('says the error', async () => {
@@ -330,7 +330,7 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-            expect(response.response.card.content).to.equal('The default duration has been set to 1 minute.');
+            expect(response.response.card.text).to.equal('The default duration has been set to 1 minute.');
         });
 
         it('says the error', async () => {
@@ -370,7 +370,7 @@ describe('Legacy Lambda', async () => {
             const handler = util.promisify(target.object().handler);
 
             const response = await handler(request, context);
-            expect(response.response.card.content).to.equal('The target temperature is now 14 degrees.');
+            expect(response.response.card.text).to.equal('The target temperature is now 14 degrees.');
         });
 
         it('says the error', async () => {
@@ -426,7 +426,7 @@ describe('Legacy Lambda', async () => {
                 const handler = util.promisify(target.object().handler);
 
                 const response = await handler(request, context);
-                expect(response.response.card.content).to.equal('The water is now on for 1 minute.');
+                expect(response.response.card.text).to.equal('The water is now on for 1 minute.');
             });
 
             it('defaults to on', async () => {
@@ -438,7 +438,7 @@ describe('Legacy Lambda', async () => {
                 const handler = util.promisify(target.object().handler);
 
                 const response = await handler(request, context);
-                expect(response.response.card.content).to.equal('The water is now on for 1 hour.');
+                expect(response.response.card.text).to.equal('The water is now on for 1 hour.');
             });
 
             it('says the error', async () => {
@@ -478,7 +478,7 @@ describe('Legacy Lambda', async () => {
                 const handler = util.promisify(target.object().handler);
 
                 const response = await handler(request, context);
-                expect(response.response.card.content).to.equal('The water is now off.');
+                expect(response.response.card.text).to.equal('The water is now off.');
             });
 
             it('says the error', async () => {
