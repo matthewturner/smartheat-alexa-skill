@@ -1,0 +1,44 @@
+name: Deploy
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  deploy_source:
+    name: Build and Deploy
+    strategy:
+      matrix:
+        node-version: [16.x]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: echo -e '//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}'$'\n'"$(cat .npmrc)" > .npmrc
+      - run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_READ }}
+      
+      - run: npm version --git-tag-version false ${{github.event.release.tag_name}}
+      
+      - run: npm run build --if-present
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PACKAGE_READ }}
+      
+      - name: Create package
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./bundle.zip ./
+      
+      - name: Deploy
+        uses: appleboy/lambda-action@master
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: eu-west-1
+          function_name: Salus
+          zip_file: bundle.zip
