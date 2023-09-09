@@ -1,4 +1,3 @@
-const alexa = require('alexa-app');
 const DefaultThermostatRepository = require('@matthewturner/smartheat-core/core/ThermostatRepository');
 const DefaultHoldStrategy = require('@matthewturner/smartheat-core/core/HoldStrategy');
 const SetTemperatureStrategy = require('@matthewturner/smartheat-core/core/SetTemperatureStrategy');
@@ -11,20 +10,17 @@ const helpers = require('@matthewturner/smartheat-aws/aws/helpers');
 const AwsHoldStrategy = require('@matthewturner/smartheat-aws/aws/HoldStrategy');
 const Factory = require('@matthewturner/smartheat-core/core/Factory');
 
-// Allow this module to be reloaded by hotswap when changed
-module.change_code = 0;
-
-let app = new alexa.app('boiler');
+const Alexa = require('ask-sdk-core');
 const { version } = require('../package.json');
 
 const controlService = (request, serviceType = ThermostatService, logger = new Logger(process.env.LOG_LEVEL || Logger.DEBUG)) => {
     logger.debug(`SmartHome Version: ${version}`);
 
-    const userId = request.userId || request.data.session.user.userId;
+    const userId = request.userId || request.session.user.userId;
     const shortUserId = helpers.truncateUserId(userId);
     logger.prefix = shortUserId;
     let source = 'user';
-    if (!request.data.context) {
+    if (!request.context) {
         source = 'callback';
     }
     const context = {
@@ -59,7 +55,7 @@ const createRepository = (logger) => {
     return new DefaultThermostatRepository(logger);
 };
 
-const say = (response, output, logger) => {
+const say = (responseBuilder, output, logger) => {
     const {
         messages,
         card
@@ -67,176 +63,233 @@ const say = (response, output, logger) => {
     let text = '';
     if (messages instanceof Array) {
         for (const message of messages) {
-            response.say(message);
             logger.debug(message);
         }
+        responseBuilder.speak(messages.join(' '));
         text = messages.join('\n');
     } else {
-        response.say(messages);
+        responseBuilder.speak(messages);
         text += messages;
         logger.debug(messages);
     }
-    card.type = 'Standard';
-    card.text = text;
-    response.card(card);
-    response.send();
+
+    return responseBuilder
+        .withStandardCard(card.title, text, card.image.smallImageUrl, card.image.largeImageUrl)
+        .getResponse();
 };
 
-const report = (response, message, logger) => {
-    response.say(message);
+const report = (responseBuilder, message, logger) => {
+    responseBuilder.speak(message);
     logger.error(message);
-    response.send();
+    return responseBuilder.getResponse();
 };
 
-const reportOn = async (request, response, serviceType, action) => {
+const reportOn = async (handlerInput, serviceType, action) => {
     const {
         logger,
         service
-    } = controlService(request, serviceType);
+    } = controlService(handlerInput.requestEnvelope, serviceType);
     try {
         const output = await action(service);
-        say(response, output, logger);
+        return say(handlerInput.responseBuilder, output, logger);
     } catch (e) {
-        report(response, e.message, logger);
+        return report(handlerInput.responseBuilder, e.message, logger);
     }
-    return false;
 };
 
-app.launch(async (request, response) => {
-    return await reportOn(request, response, ThermostatService,
-        service => service.launch());
-});
-
-app.intent('TempIntent', {
-    'utterances': ['what the temperature is', 'the temperature', 'how hot it is']
-}, async (request, response) => {
-    return await reportOn(request, response, ThermostatService,
-        service => service.status());
-});
-
-app.intent('TurnUpIntent', {
-    'utterances': ['to increase', 'to turn up', 'set warmer', 'set higher']
-}, async (request, response) => {
-    return await reportOn(request, response, ThermostatService,
-        service => service.turnUp());
-});
-
-app.intent('TurnDownIntent', {
-    'utterances': ['to decrease', 'to turn down', 'set cooler', 'set lower']
-}, async (request, response) => {
-    return await reportOn(request, response, ThermostatService,
-        service => service.turnDown());
-});
-
-app.intent('SetTempIntent', {
-    'slots': {
-        'temp': 'AMAZON.NUMBER'
+const LaunchRequestHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
-    'utterances': ['to set to {temp} degrees', 'to set the temperature to {temp} degrees', 'to set the temp to {temp} degrees']
-}, async (request, response) => {
-    const targetTemp = parseFloat(request.slot('temp'));
-    const optionalDuration = request.slot('duration', null);
+    async handle(handlerInput) {
+        return await reportOn(handlerInput, ThermostatService,
+            service => service.launch());
+    }
+};
 
-    return await reportOn(request, response, ThermostatService,
-        service => service.setTemperature(targetTemp, optionalDuration));
-});
-
-app.intent('TurnIntent', {
-    'slots': {
-        'onoff': 'ONOFF',
-        'duration': 'AMAZON.DURATION'
+const TempIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TempIntent';
     },
-    'utterances': ['to turn {onoff}', 'to turn heating {onoff}', 'to turn the heating {onoff}']
-}, async (request, response) => {
-    const onOff = request.slot('onoff');
-    const duration = request.slot('duration');
+    async handle(handlerInput) {
+        return await reportOn(handlerInput, ThermostatService,
+            service => service.status());
+    }
+};
 
-    // this could be a callback from a step function
-    return await reportOn(request, response, ThermostatService,
-        service => {
-            if (onOff === 'on') {
-                return service.turnOn(duration);
-            } else {
-                return service.turnOff();
-            }
-        });
-});
-
-app.intent('TurnWaterIntent', {
-    'slots': {
-        'onoff': 'ONOFF',
-        'duration': 'AMAZON.DURATION'
+const TurnUpIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TurnUpIntent';
     },
-    'utterances': ['to boost the water', 'to boost the water for {duration}',
-        'to turn water {onoff}', 'to turn the water {onoff}',
-        'to turn the water on for {duration}'
-    ]
-}, async (request, response) => {
-    const onOff = request.slot('onoff') || 'on';
-    const duration = request.slot('duration');
+    async handle(handlerInput) {
+        return await reportOn(handlerInput, ThermostatService,
+            service => service.turnUp());
+    }
+};
 
-    return await reportOn(request, response, WaterService,
-        service => {
-            if (onOff === 'on') {
-                return service.turnOn(duration);
-            } else {
-                return service.turnOff();
-            }
-        });
-});
-
-app.intent('SetDefaultTempIntent', {
-    'slots': {
-        'onoff': 'ONOFF',
-        'temp': 'AMAZON.NUMBER'
+const TurnDownIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TurnDownIntent';
     },
-    'utterances': ['to set the default {onoff} temperature to {temp} degrees']
-}, async (request, response) => {
-    const onOff = request.slot('onoff');
-    const temp = parseFloat(request.slot('temp'));
+    async handle(handlerInput) {
+        return await reportOn(handlerInput, ThermostatService,
+            service => service.turnDown());
+    }
+};
 
-    return await reportOn(request, response, DefaultsService,
-        service => service.setDefault(onOff, temp));
-});
-
-app.intent('SetDefaultDurationIntent', {
-    'slots': {
-        'duration': 'AMAZON.DURATION'
+const SetTempIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'SetTempIntent';
     },
-    'utterances': ['to set the default duration to {duration}']
-}, async (request, response) => {
-    const duration = request.slot('duration');
+    async handle(handlerInput) {
+        const temp = Alexa.getSlotValue(handlerInput.requestEnvelope, 'temp');
+        const targetTemp = parseFloat(temp);
+        const optionalDuration = Alexa.getSlotValue(handlerInput.requestEnvelope, 'duration');
 
-    return await reportOn(request, response, DefaultsService,
-        service => service.setDefault('duration', duration));
-});
+        return await reportOn(handlerInput, ThermostatService,
+            service => service.setTemperature(targetTemp, optionalDuration));
+    }
+};
 
-app.intent('DefaultsIntent', {
-    'slots': {},
-    'utterances': ['the current default values', 'the default values', 'the current defaults', 'the defaults']
-}, async (request, response) => {
-    return await reportOn(request, response, DefaultsService,
-        service => service.defaults());
-});
+const TurnIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TurnIntent';
+    },
+    async handle(handlerInput) {
+        const onOff = Alexa.getSlotValue(handlerInput.requestEnvelope, 'onoff');
+        const duration = Alexa.getSlotValue(handlerInput.requestEnvelope, 'duration');
 
-app.intent('AMAZON.HelpIntent', {
-    'slots': {},
-    'utterances': []
-}, (request, response) => {
-    let helpOutput = 'You can say \'set the temperature to 18 degrees\' or ask \'the temperature\'. You can also say stop or exit to quit.';
-    let reprompt = 'What would you like to do?';
-    // AMAZON.HelpIntent must leave session open -> .shouldEndSession(false)
-    response.say(helpOutput).reprompt(reprompt).shouldEndSession(false);
-});
+        // this could be a callback from a step function
+        return await reportOn(handlerInput, ThermostatService,
+            service => {
+                if (onOff === 'on') {
+                    return service.turnOn(duration);
+                } else {
+                    return service.turnOff();
+                }
+            });
+    }
+};
 
-app.intent('AMAZON.StopIntent', {
-    'slots': {},
-    'utterances': []
-}, async (request, response) => {
-    return await reportOn(request, response, ThermostatService,
-        service => service.turnOff());
-});
+const TurnWaterIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'TurnWaterIntent';
+    },
+    async handle(handlerInput) {
+        const onOff = Alexa.getSlotValue(handlerInput.requestEnvelope, 'onoff') || 'on';
+        const duration = Alexa.getSlotValue(handlerInput.requestEnvelope, 'duration');
 
-module.exports = app;
+        return await reportOn(handlerInput, WaterService,
+            service => {
+                if (onOff === 'on') {
+                    return service.turnOn(duration);
+                } else {
+                    return service.turnOff();
+                }
+            });
+    }
+};
 
-exports.handler = app.lambda();
+const SetDefaultIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'SetDefaultTempIntent';
+    },
+    async handle(handlerInput) {
+        const onOff = Alexa.getSlotValue(handlerInput.requestEnvelope, 'onoff');
+        const temp = parseFloat(Alexa.getSlotValue(handlerInput.requestEnvelope, 'temp'));
+
+        return await reportOn(handlerInput, DefaultsService,
+            service => service.setDefault(onOff, temp));
+    }
+};
+
+const SetDefaultDurationIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'SetDefaultDurationIntent';
+    },
+    async handle(handlerInput) {
+        const duration = Alexa.getSlotValue(handlerInput.requestEnvelope, 'duration');
+
+        return await reportOn(handlerInput, DefaultsService,
+            service => service.setDefault('duration', duration));
+    }
+};
+
+const DefaultsIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'DefaultsIntent';
+    },
+    async handle(handlerInput) {
+        return await reportOn(handlerInput, DefaultsService,
+            service => service.defaults());
+    }
+};
+
+const HelpIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
+    },
+    handle(handlerInput) {
+        let helpOutput = 'You can say \'set the temperature to 18 degrees\' or ask \'the temperature\'. You can also say stop or exit to quit.';
+        let reprompt = 'What would you like to do?';
+
+        return handlerInput.responseBuilder
+            .speak(helpOutput)
+            .reprompt(reprompt)
+            .withSimpleCard(reprompt, helpOutput)
+            .getResponse();
+    }
+};
+
+const CancelAndStopIntentHandler = {
+    canHandle(handlerInput) {
+        return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
+            && (Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.CancelIntent'
+                || Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.StopIntent');
+    },
+    async handle(handlerInput) {
+        return await reportOn(handlerInput, ThermostatService,
+            service => service.turnOff());
+    }
+};
+
+const ErrorHandler = {
+    canHandle() {
+        return true;
+    },
+    handle(handlerInput, error) {
+        console.log(`Error handled: ${error.message}`);
+
+        return handlerInput.responseBuilder
+            .speak('Sorry, I don\'t understand your command. Please say it again.')
+            .reprompt('Sorry, I don\'t understand your command. Please say it again.')
+            .getResponse();
+    }
+};
+
+exports.handler = Alexa.SkillBuilders.custom()
+    .addRequestHandlers(
+        LaunchRequestHandler,
+        TempIntentHandler,
+        TurnUpIntentHandler,
+        TurnDownIntentHandler,
+        SetTempIntentHandler,
+        TurnIntentHandler,
+        TurnWaterIntentHandler,
+        SetDefaultIntentHandler,
+        SetDefaultDurationIntentHandler,
+        DefaultsIntentHandler,
+        HelpIntentHandler,
+        CancelAndStopIntentHandler)
+    .addErrorHandlers(ErrorHandler)
+    .lambda();
