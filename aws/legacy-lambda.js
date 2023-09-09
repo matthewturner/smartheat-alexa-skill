@@ -15,8 +15,11 @@ const Factory = require('@matthewturner/smartheat-core/core/Factory');
 module.change_code = 0;
 
 let app = new alexa.app('boiler');
+const { version } = require('../package.json');
 
 const controlService = (request, serviceType = ThermostatService, logger = new Logger(process.env.LOG_LEVEL || Logger.DEBUG)) => {
+    logger.debug(`SmartHome Version: ${version}`);
+
     const userId = request.userId || request.data.session.user.userId;
     const shortUserId = helpers.truncateUserId(userId);
     logger.prefix = shortUserId;
