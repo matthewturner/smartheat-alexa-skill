@@ -12,8 +12,9 @@ const Factory = require('@matthewturner/smartheat-core/core/Factory');
 
 const Alexa = require('ask-sdk-core');
 const { version } = require('../package.json');
+const logger = new Logger(process.env.LOG_LEVEL || Logger.DEBUG);
 
-const controlService = (request, serviceType = ThermostatService, logger = new Logger(process.env.LOG_LEVEL || Logger.DEBUG)) => {
+const controlService = (request, serviceType = ThermostatService) => {
     logger.debug(`SmartHome Version: ${version}`);
 
     const userId = request.userId || request.session.user.userId;
@@ -35,10 +36,7 @@ const controlService = (request, serviceType = ThermostatService, logger = new L
     const factory = new Factory(logger);
     const service = new serviceType(logger, context, factory, repository,
         holdStrategy, setTemperatureStrategy);
-    return {
-        logger,
-        service
-    };
+    return service;
 };
 
 const createHoldStrategy = (logger, context) => {
@@ -55,7 +53,7 @@ const createRepository = (logger) => {
     return new DefaultThermostatRepository(logger);
 };
 
-const say = (responseBuilder, output, logger) => {
+const say = (responseBuilder, output) => {
     const {
         messages,
         card
@@ -78,22 +76,19 @@ const say = (responseBuilder, output, logger) => {
         .getResponse();
 };
 
-const report = (responseBuilder, message, logger) => {
+const report = (responseBuilder, message) => {
     responseBuilder.speak(message);
     logger.error(message);
     return responseBuilder.getResponse();
 };
 
 const reportOn = async (handlerInput, serviceType, action) => {
-    const {
-        logger,
-        service
-    } = controlService(handlerInput.requestEnvelope, serviceType);
+    const service = controlService(handlerInput.requestEnvelope, serviceType);
     try {
         const output = await action(service);
-        return say(handlerInput.responseBuilder, output, logger);
+        return say(handlerInput.responseBuilder, output);
     } catch (e) {
-        return report(handlerInput.responseBuilder, e.message, logger);
+        return report(handlerInput.responseBuilder, e.message);
     }
 };
 
@@ -268,7 +263,7 @@ const ErrorHandler = {
         return true;
     },
     handle(handlerInput, error) {
-        console.log(`Error handled: ${error.message}`);
+        logger.error(`Error handled: ${error.message}`);
 
         return handlerInput.responseBuilder
             .speak('Sorry, I don\'t understand your command. Please say it again.')
@@ -276,6 +271,8 @@ const ErrorHandler = {
             .getResponse();
     }
 };
+
+exports.logger = logger;
 
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(

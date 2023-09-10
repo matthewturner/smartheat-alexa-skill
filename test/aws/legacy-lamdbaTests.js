@@ -9,7 +9,8 @@ const createTarget = () => {
     process.env.HOLD_STRATEGY = 'default';
     process.env.THERMOSTAT_REPOSITORY = 'default';
     process.env.THERMOSTAT_TYPE = 'mock';
-    process.env.LOG_LEVEL = 'OFF';
+
+    lambda.logger.level = 'OFF';
 
     return {
         lambda: lambda,
