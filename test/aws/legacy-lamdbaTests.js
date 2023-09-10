@@ -9,7 +9,8 @@ const createTarget = () => {
     process.env.HOLD_STRATEGY = 'default';
     process.env.THERMOSTAT_REPOSITORY = 'default';
     process.env.THERMOSTAT_TYPE = 'mock';
-    process.env.LOG_LEVEL = 'OFF';
+
+    lambda.logger.level = 'OFF';
 
     return {
         lambda: lambda,
@@ -223,6 +224,23 @@ describe('Legacy Lambda', async () => {
 
             const response = await handler(request, context);
             expect(response.response.outputSpeech.ssml).to.equal('<speak>Unknown thermostat type unknown</speak>');
+        });
+
+        it('can fulfill', async () => {
+            const target = createTarget();
+
+            const request = JSON.parse(await fs.readFile('./test/fixtures/CanfulfillTurnIntent.json'));
+            const context = {};
+
+            const handler = util.promisify(target.object().handler);
+
+            const response = await handler(request, context);
+
+            expect(response.response.canFulfillIntent.canFulfill).to.equal('YES');
+            expect(response.response.canFulfillIntent.slots.onoff.canUnderstand).to.equal('YES');
+            expect(response.response.canFulfillIntent.slots.onoff.canFulfill).to.equal('YES');
+            expect(response.response.canFulfillIntent.slots.duration.canUnderstand).to.equal('YES');
+            expect(response.response.canFulfillIntent.slots.duration.canFulfill).to.equal('YES');
         });
     });
 
