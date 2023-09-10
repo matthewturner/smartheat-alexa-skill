@@ -171,34 +171,6 @@ const TurnIntentHandler = {
     }
 };
 
-const CanFulfillTurnIntentHandler = {
-    canHandle(handlerInput) {
-        return Alexa.getRequestType(handlerInput.requestEnvelope) === `CanFulfillIntentRequest` &&
-            handlerInput.requestEnvelope.request.intent.name === 'TurnIntent';
-    },
-    handle(handlerInput) {
-        // const onOff = Alexa.getSlotValue(handlerInput.requestEnvelope, 'onoff');
-        // const duration = Alexa.getSlotValue(handlerInput.requestEnvelope, 'duration');
-
-        return handlerInput.responseBuilder
-            .withCanFulfillIntent(
-                {
-                    "canFulfill": "YES",
-                    "slots": {
-                        "onoff": {
-                            "canUnderstand": "YES",
-                            "canFulfill": "YES"
-                        },
-                        "duration": {
-                            "canUnderstand": "YES",
-                            "canFulfill": "YES"
-                        }
-                    }
-                })
-            .getResponse();
-    }
-};
-
 const TurnWaterIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
@@ -300,29 +272,10 @@ const ErrorHandler = {
     }
 };
 
-const CanFulfillErrorHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === `CanFulfillIntentRequest`;
-    },
-    handle(handlerInput, error) {
-        logger.error(`CFIR Error handled: ${error.message}`);
-
-        return handlerInput.responseBuilder
-            .withCanFulfillIntent(
-                {
-                    "canFulfill": "NO",
-                    "slots": {
-                    }
-                })
-            .getResponse();
-    },
-};
-
 exports.logger = logger;
 
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
-        CanFulfillTurnIntentHandler,
         LaunchRequestHandler,
         TempIntentHandler,
         TurnUpIntentHandler,
@@ -335,7 +288,5 @@ exports.handler = Alexa.SkillBuilders.custom()
         DefaultsIntentHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler)
-    .addErrorHandlers(
-        CanFulfillErrorHandler,
-        ErrorHandler)
+    .addErrorHandlers(ErrorHandler)
     .lambda();
