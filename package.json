@@ -20,7 +20,7 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "promise-fs": "^2.1.1",
-    "sinon": "^16.1.0",
+    "sinon": "^17.0.0",
     "validate-npm-package-license": "^3.0.4"
   },
   "dependencies": {
