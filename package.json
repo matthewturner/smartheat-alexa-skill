@@ -13,7 +13,7 @@
     "applicationId": "amzn1.echo-sdk-ams.app.999999-d0ed-9999-ad00-999999d00ebe"
   },
   "devDependencies": {
-    "aws-sdk": "^2.1503.0",
+    "aws-sdk": "^2.1531.0",
     "chai": "^4.3.10",
     "chai-as-promised": "^7.1.1",
     "eslint": "^8.54.0",
